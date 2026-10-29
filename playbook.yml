@@ -1,0 +1,161 @@
+---
+- name: Deploy ShopEase E-Commerce Web Application
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: Update package cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+
+    - name: Deploy ShopEase webpage
+      ansible.builtin.copy:
+        dest: /var/www/html/index.html
+        mode: "0644"
+        content: |
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>ShopEase | Online Shopping</title>
+              <style>
+                  * {
+                      box-sizing: border-box;
+                  }
+
+                  body {
+                      margin: 0;
+                      font-family: Arial, sans-serif;
+                      background: #f3f4f6;
+                      color: #1f2937;
+                  }
+
+                  header {
+                      background: #111827;
+                      color: white;
+                      padding: 22px;
+                      text-align: center;
+                  }
+
+                  nav {
+                      background: #2563eb;
+                      padding: 12px;
+                      text-align: center;
+                  }
+
+                  nav a {
+                      color: white;
+                      margin: 0 15px;
+                      text-decoration: none;
+                      font-weight: bold;
+                  }
+
+                  .hero {
+                      text-align: center;
+                      padding: 55px 20px;
+                      background: white;
+                  }
+
+                  .hero h2 {
+                      font-size: 32px;
+                      color: #2563eb;
+                  }
+
+                  .products {
+                      display: flex;
+                      flex-wrap: wrap;
+                      justify-content: center;
+                      gap: 20px;
+                      padding: 30px 15px;
+                  }
+
+                  .card {
+                      background: white;
+                      padding: 25px;
+                      width: 220px;
+                      text-align: center;
+                      border-radius: 10px;
+                      box-shadow: 0 2px 8px #00000015;
+                  }
+
+                  .card h3 {
+                      color: #2563eb;
+                  }
+
+                  footer {
+                      text-align: center;
+                      padding: 20px;
+                      background: #111827;
+                      color: white;
+                  }
+              </style>
+          </head>
+          <body>
+              <header>
+                  <h1>ShopEase</h1>
+                  <p>Your Everyday Online Shopping Destination</p>
+              </header>
+
+              <nav>
+                  <a href="#home">Home</a>
+                  <a href="#products">Products</a>
+                  <a href="#about">About</a>
+              </nav>
+
+              <section class="hero" id="home">
+                  <h2>Welcome to ShopEase!</h2>
+                  <p>Discover everyday essentials in one place.</p>
+                  <p>Simple shopping. Convenient living.</p>
+              </section>
+
+              <section class="products" id="products">
+                  <div class="card">
+                      <h3>Electronics</h3>
+                      <p>Explore electronic essentials.</p>
+                  </div>
+
+                  <div class="card">
+                      <h3>Fashion</h3>
+                      <p>Discover everyday styles.</p>
+                  </div>
+
+                  <div class="card">
+                      <h3>Home & Living</h3>
+                      <p>Find items for your home.</p>
+                  </div>
+              </section>
+
+              <section class="hero" id="about">
+                  <h2>About ShopEase</h2>
+                  <p>This demonstration website was deployed using Ansible.</p>
+                  <p>Web server: Nginx</p>
+              </section>
+
+              <footer>
+                  <p>ShopEase | DevOps Automation Demonstration</p>
+              </footer>
+          </body>
+          </html>
+
+    - name: Start and enable Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: Verify the website response
+      ansible.builtin.uri:
+        url: http://127.0.0.1/
+        status_code: 200
+      register: website_response
+
+    - name: Display verification result
+      ansible.builtin.debug:
+        msg: "ShopEase deployment successful. HTTP status: {{ website_response.status }}"
